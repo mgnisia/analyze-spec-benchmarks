@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import urllib2
 import multiprocessing
 import lxml.html
@@ -57,6 +58,14 @@ def iterateAllPageURLs():
     for elem, attr, link, pos in doc.getroot().iterlinks():
         if link.lower().endswith('.txt'):
             yield 'http://www.spec.org/cpu2006/results/' + link, os.path.join('scraped', 'cpu2006', link.split('/')[-1])
+
+    with cachedRead('http://www.spec.org/cpu2017/results/cpu2017.html', os.path.join('scraped', 'cpu2017.html')) as f:
+        print 'Scanning cpu2017.html ...'
+        doc = lxml.html.parse(f)
+    for elem, attr, link, pos in doc.getroot().iterlinks():
+        if link.lower().endswith('.txt'):
+            yield 'http://www.spec.org/cpu2017/results/' + link, os.path.join('scraped', 'cpu2017', link.split('/')[-1])
+
 
 if __name__ == '__main__':
     allPageURLs = list(iterateAllPageURLs())
