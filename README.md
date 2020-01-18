@@ -66,7 +66,7 @@ Charts Generated on 2020-01-18
 ![](int_graph.svg)
 
 ## Floating Point
-![](fp_graph.png.svg)
+![](fp_graph.svg)
 
 -----
 SPECint(R) and SPECfp(R) are registered trademarks of the Standard Performance Evaluation Corporation (SPEC).
