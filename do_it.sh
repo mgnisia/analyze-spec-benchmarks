@@ -11,7 +11,7 @@ $MY_PYTHON ./fetch-pages.py | grep "Fetching"
 echo "Analyze pages"
 $MY_PYTHON ./analyze-pages.py
 echo "Done analyzing"
-$P$MY_PYTHONYTHON ./check-autoparallel.py
+$MY_PYTHON ./check-autoparallel.py
 echo "Making graphs"
 $MY_PYTHON ./make-graphs.py
 
