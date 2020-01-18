@@ -2,7 +2,12 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import open
+from future import standard_library
+
+standard_library.install_aliases()
 import collections
 import csv
 import math
@@ -36,11 +41,11 @@ for benchType in ['INT', 'FP']:
     for srec in iterCsvRecords('summaries.txt', 'SummaryRecord'):
         summaryTable[srec.testID] = srec
         if srec.autoParallel == 'Yes' and benchType in srec.benchType:
-            base = geomAverage([float(brec.base) for brec in benchTable[srec.testID].values()])
-            for brec in benchTable[srec.testID].values():
+            base = geomAverage([float(brec.base) for brec in list(benchTable[srec.testID].values())])
+            for brec in list(benchTable[srec.testID].values()):
                 r = (float(brec.base) / base, brec)
                 topBenchResults[brec.benchName] = max(r, topBenchResults.get(brec.benchName, (0, None)))
-    for v, k in sorted([(v, k) for k, v in topBenchResults.items()], reverse=True):
+    for v, k in sorted([(v, k) for k, v in list(topBenchResults.items())], reverse=True):
         benchValue, brec = v
         print(benchValue, k, brec.testID, summaryTable[brec.testID].machine)
     print()

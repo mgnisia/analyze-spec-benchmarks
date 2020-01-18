@@ -12,6 +12,7 @@ Requirements
 ------------
 
 * Python 3 is required. Tested on Python 3.8.
+* `pip3 install future` - scripts have been pass through `futurize` and `pasteurize`, so they ought to work on python 2.7 too
 * `pip3 install lxml` - lxml is required if you want to fetch all the data from SPEC's website. Otherwise, you can download aggregated data from: https://github.com/damageboy/analyze-spec-benchmarks/releases/download/data/scraped-2019-05-21.tar.xz
   You could probably rewrite the lxml part using one of Python's built-in modules; I didn't bother.
 * `pip3 install pycairo` - pycairo is optional if you want to generate the SVG files.

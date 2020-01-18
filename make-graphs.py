@@ -2,7 +2,15 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from __future__ import unicode_literals
 
+from builtins import dict
+from builtins import open
+from builtins import round
+from builtins import int
+from future import standard_library
+
+standard_library.install_aliases()
 import collections
 import csv
 import datetime
@@ -279,7 +287,7 @@ def iterResults():
     summaryTable = {}
     for srec in iterCsvRecords('summaries.txt', 'SummaryRecord'):
         summaryTable[srec.testID] = srec
-        benches = [brec for brec in benchTable[srec.testID].values()
+        benches = [brec for brec in list(benchTable[srec.testID].values())
                    if brec.benchName not in DISQUALIFIED_BENCHMARKS]
         hwDate = datetime.datetime.strptime(srec.hwAvail, '%b-%Y')
         yield Result(benchType=srec.benchType,
@@ -506,7 +514,7 @@ def RenderGraph(mode, resultsByBrand, outPath):
             if brand:
                 rib = resultsByBrand[brand]
             else:
-                rib = sum([rib for b, rib in resultsByBrand.items() if b not in recognized], [])
+                rib = sum([rib for b, rib in list(resultsByBrand.items()) if b not in recognized], [])
             cr.set_source_rgb(*[int(color[i:i + 2], 16) / 255.0 for i in range(0, 6, 2)])
             for r in rib:
                 logScore = math.log(r.convertedScore, 2)
@@ -591,7 +599,7 @@ for MODE in ['INT', 'FP']:
     ratio2000 = []
     ratio2006 = []
     ratio2017 = []
-    for cpu, results in resultsByCPU.items():
+    for cpu, results in list(resultsByCPU.items()):
         sliceByType = [[r.score for r in results if r.benchType == b] for b in benchTypes]
         if sliceByType[0] and sliceByType[1]:
             # We have a 2000/95 conversion ratio for this CPU.
@@ -609,11 +617,11 @@ for MODE in ['INT', 'FP']:
 
     # Group results by brand, convert scores and sort.
     resultsByBrand = collections.defaultdict(list)
-    for cpu, results in resultsByCPU.items():
+    for cpu, results in list(resultsByCPU.items()):
         for r in results:
             convertedScore = r.score * conversionRatios[benchTypes.index(r.benchType)]
             resultsByBrand[cpu.brand].append(ResultInBrand(r.hwDate, convertedScore, cpu, r))
-    for rib in resultsByBrand.values():
+    for rib in list(resultsByBrand.values()):
         rib.sort()
 
     # Dump results file.                                             
