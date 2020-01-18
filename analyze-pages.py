@@ -1,16 +1,17 @@
-#!/usr/bin/env python2
-import csv
-import re
-import os
-import bz2
-import cPickle
-import sys
-from collections import namedtuple, defaultdict
-from datetime import datetime
-from pprint import pprint
+#!/usr/bin/env python3
+from __future__ import absolute_import
+from __future__ import print_function
 
-TestRecord = namedtuple('TestRecord', 'testID tester machine cpu mhz hwAvail os compiler autoParallel benchType base peak')
+import csv
+import os
+import re
+from collections import namedtuple
+from datetime import datetime
+
+TestRecord = namedtuple('TestRecord',
+                        'testID tester machine cpu mhz hwAvail os compiler autoParallel benchType base peak')
 BenchRecord = namedtuple('BenchRecord', 'testID benchName base peak')
+
 
 def scanUntilLine(lineIter, pattern):
     for line in lineIter:
@@ -18,10 +19,12 @@ def scanUntilLine(lineIter, pattern):
         if m:
             g = m.groups()
             if len(g) == 1:
-                return g[0].strip()            
+                return g[0].strip()
             return [x.strip() for x in g]
 
+
 MHzExp = re.compile('[(/]?(\\d+(?:\\.\\d+)?)a? ?([mg]hz)\\)?')
+
 
 def ExtractMHzFromName(name):
     name = name.lower()
@@ -32,8 +35,9 @@ def ExtractMHzFromName(name):
         value *= 1000
     return value
 
+
 def parse95(path):
-    testID = os.path.splitext(os.path.basename(path))[0]    
+    testID = os.path.splitext(os.path.basename(path))[0]
     lineIter = iter(open(path))
     for line in lineIter:
         if line.startswith('   ------------  --------  --------  --------  --------  --------  --------'):
@@ -53,11 +57,11 @@ def parse95(path):
     if '_rate' in benchType:
         return [], []
     benchType = {
-        'SPECint_base95 (Geom. Mean)' : 'CINT95',
-        'SPECfp_base95 (Geom. Mean)' : 'CFP95'
+        'SPECint_base95 (Geom. Mean)': 'CINT95',
+        'SPECfp_base95 (Geom. Mean)': 'CFP95'
     }[benchType]
     base = line[35:45].strip()
-    peak = lineIter.next()[65:75].strip()
+    peak = lineIter.readline()[65:75].strip()
     properties = {}
     label = ''
     for line in lineIter:
@@ -92,15 +96,15 @@ def parse95(path):
     except ValueError:
         pass
     model = properties['Model Name']
-    
+
     testRecord = TestRecord(testID, testedBy, model, cpu, mhz, hwAvail, opSys, compiler, 'No', benchType, base, peak)
     return [testRecord], benches
 
 
 def parse2000(path):
-    testID = os.path.splitext(os.path.basename(path))[0]    
-    lineIter = iter(open(path))
-    lineIter.next()
+    testID = os.path.splitext(os.path.basename(path))[0]
+    lineIter = iter(open(path, encoding="utf8", errors='ignore'))
+    next(lineIter)
     hwAvail = scanUntilLine(lineIter, 'Hardware availability: (.*)')
     tester = scanUntilLine(lineIter, 'Tester: (.*?) *Software availability')
     for line in lineIter:
@@ -121,11 +125,11 @@ def parse2000(path):
     if '_rate_' in benchType:
         return [], []
     benchType = {
-        'SPECint_base2000' : 'CINT2000',
-        'SPECfp_base2000' : 'CFP2000'
+        'SPECint_base2000': 'CINT2000',
+        'SPECfp_base2000': 'CFP2000'
     }[benchType]
     base = line[35:45].strip()
-    peak = lineIter.next()[65:75].strip()
+    peak = lineIter.readline()[65:75].strip()
     properties = {}
     label = ''
     for line in lineIter:
@@ -147,17 +151,17 @@ def parse2000(path):
     opSys = properties['Operating System']
     compiler = properties['Compiler']
     model = properties['Model Name']
-    
+
     testRecord = TestRecord(testID, tester, model, cpu, mhz, hwAvail, opSys, compiler, 'No', benchType, base, peak)
     return [testRecord], benches
 
 
 def parse2006(path):
-    testID = os.path.splitext(os.path.basename(path))[0]    
-    lineIter = iter(open(path))
-    if '######################' in lineIter.next():
+    testID = os.path.splitext(os.path.basename(path))[0]
+    lineIter = iter(open(path, encoding="utf8", errors='ignore'))
+    if '######################' in next(lineIter):
         return [], []
-    model = lineIter.next().strip()
+    model = lineIter.readline().strip()
     hwAvail = scanUntilLine(lineIter, 'Hardware availability: (.*)')
     tester = scanUntilLine(lineIter, 'Tested by:    (.*?) *Software availability')
     if model.startswith(tester):
@@ -182,13 +186,13 @@ def parse2006(path):
     if '_rate_' in benchType:
         return [], []
     benchType = {
-        'SPECint(R)_base2006' : 'CINT2006',
-        'SPECfp(R)_base2006' : 'CFP2006',
-        'SPECint(R)_rate_base2006' : 'CINT2006',
-        'SPECfp(R)_rate_base2006' : 'CFP2006'
+        'SPECint(R)_base2006': 'CINT2006',
+        'SPECfp(R)_base2006': 'CFP2006',
+        'SPECint(R)_rate_base2006': 'CINT2006',
+        'SPECfp(R)_rate_base2006': 'CFP2006'
     }[benchType]
     base = line[33:43].strip()
-    peak = lineIter.next()[65:75].strip()
+    peak = lineIter.readline()[65:75].strip()
     properties = {}
     label = ''
     for line in lineIter:
@@ -210,17 +214,18 @@ def parse2006(path):
     opSys = properties['Operating System']
     compiler = properties['Compiler']
     autoParallel = properties['Auto Parallel']
-    
-    testRecord = TestRecord(testID, tester, model, cpu, mhz, hwAvail, opSys, compiler, autoParallel, benchType, base, peak)
+
+    testRecord = TestRecord(testID, tester, model, cpu, mhz, hwAvail, opSys, compiler, autoParallel, benchType, base,
+                            peak)
     return [testRecord], benches
 
 
 def parse2017(path):
     testID = os.path.splitext(os.path.basename(path))[0]
-    lineIter = iter(open(path))
-    if '######################' in lineIter.next():
+    lineIter = iter(open(path, encoding="utf8", errors='ignore'))
+    if '######################' in next(lineIter):
         return [], []
-    model = lineIter.next().strip()
+    model = lineIter.readline().strip()
     hwAvail = scanUntilLine(lineIter, 'Hardware availability: (.*)')
     tester = scanUntilLine(lineIter, 'Tested by:    (.*?) *Software availability')
     if model.startswith(tester):
@@ -234,6 +239,7 @@ def parse2017(path):
     for line in lineIter:
         m = re.match(' (SPEC.{27})  ', line)
         if m:
+            # TODO: handle 'Originally published on YYYY-MM-DD.'
             benchType = m.group(1).strip()
             break
         benchName = line[:15].strip()
@@ -242,15 +248,33 @@ def parse2017(path):
             return [], []
         peak = line[70:79].strip()
         benches.append(BenchRecord(testID, benchName, base, peak))
-    if 'SPECrate' in benchType:
+    try:
+        if 'SPECrate' in benchType:
+            return [], []
+    except UnboundLocalError:
+        print("We didn't get a benchType from this line (ignoring):")
+        print(line)
+        print("From file: " + path)
         return [], []
-    benchType = {
-        'SPECspeed2017_int_base' : 'CINT2017',
-        'SPECspeed2017_fp_base' : 'CFP2017',
-
-    }[benchType]
+    if 'SPECspeed(R)2017_fp_energy_base' in benchType:
+        print("I don't know what to do with benchType = SPECspeed(R)2017_fp_energy_base")
+        print("From file: " + path)
+        return [], []
+    try:
+        benchType = {
+            'SPECspeed2017_int_base': 'CINT2017',
+            'SPECspeed2017_fp_base': 'CFP2017',
+            'SPECspeed(R)2017_int_base': 'CINT2017',
+            'SPECspeed(R)2017_fp_base': 'CFP2017',
+            # 'SPECspeed(R)2017_fp_energy_base': 'CFPe2017'
+        }[benchType]
+    except KeyError:
+        print("KeyError on benchType in parse2017:")
+        print(benchType)
+        print("From file: " + path)
+        return [], []
     base = line[33:43].strip()
-    peak = lineIter.next()[65:75].strip()
+    peak = lineIter.readline()[65:75].strip()
     properties = {}
     label = ''
     for line in lineIter:
@@ -273,51 +297,54 @@ def parse2017(path):
     compiler = properties['Compiler']
     autoParallel = properties['Parallel']
 
-    testRecord = TestRecord(testID, tester, model, cpu, mhz, hwAvail, opSys, compiler, autoParallel, benchType, base, peak)
+    testRecord = TestRecord(testID, tester, model, cpu, mhz, hwAvail, opSys, compiler, autoParallel, benchType, base,
+                            peak)
     return [testRecord], benches
+
 
 def iterRecords():
     allTests = []
 
-    print "Collecting from cpu95"
+    print("Collecting from cpu95")
     for fn in os.listdir(os.path.join('scraped', 'cpu95')):
         if fn.lower().endswith('.asc'):
             allTests.append((parse95, os.path.join('scraped', 'cpu95', fn)))
-    print "Collecting from cpu2000"
+    print("Collecting from cpu2000")
     for fn in os.listdir(os.path.join('scraped', 'cpu2000')):
         allTests.append((parse2000, os.path.join('scraped', 'cpu2000', fn)))
-    print
+    print()
     "Collecting from cpu2006"
     for fn in os.listdir(os.path.join('scraped', 'cpu2006')):
         allTests.append((parse2006, os.path.join('scraped', 'cpu2006', fn)))
-    print "Collecting from cpu2017"
+    print("Collecting from cpu2017")
     for fn in os.listdir(os.path.join('scraped', 'cpu2017')):
         allTests.append((parse2017, os.path.join('scraped', 'cpu2017', fn)))
 
-    print "Collected %d" % len(allTests)
-    
+    print("Collected %d" % len(allTests))
+
     tests = []
     benches = []
     for i, pair in enumerate(allTests):
         if i % 100 == 0:
-            print 'Analyzing %d/%d ...' % (i, len(allTests))
+            print('Analyzing %d/%d ...' % (i, len(allTests)))
         func, arg = pair
         t, b = func(arg)
         tests += t
         benches += b
-        
-    print 'Writing summaries.txt ...'
+
+    print('Writing summaries.txt ...')
     with open('summaries.txt', 'w') as f:
         w = csv.writer(f)
         w.writerow(TestRecord._fields)
         for t in tests:
             w.writerow(t)
-            
-    print 'Writing benchmarks.txt ...'
+
+    print('Writing benchmarks.txt ...')
     with open('benchmarks.txt', 'w') as f:
         w = csv.writer(f)
         w.writerow(BenchRecord._fields)
         for b in benches:
             w.writerow(b)
-            
+
+
 iterRecords()

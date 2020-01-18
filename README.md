@@ -2,6 +2,8 @@ A set of Python scripts to fetch benchmarks spec.org, analyze them, and output s
 Original version by Jeff Preshing in February 2012.
 Released to the public domain.
 
+Forked from patched version by damageboy: https://github.com/damageboy/analyze-spec-benchmarks
+
 For more information:
 http://preshing.com/20120208/a-look-back-at-single-threaded-cpu-performance
 
@@ -9,15 +11,17 @@ http://preshing.com/20120208/a-look-back-at-single-threaded-cpu-performance
 Requirements
 ------------
 
-* Python 2.6 - 2.7 is required.
-* lxml is required if you want to fetch all the data from SPEC's website. Otherwise, you can download aggregated data from: https://github.com/damageboy/analyze-spec-benchmarks/releases/download/data/scraped-2019-05-21.tar.xz
+* Python 3 is required. Tested on Python 3.8.
+* `pip3 install lxml` - lxml is required if you want to fetch all the data from SPEC's website. Otherwise, you can download aggregated data from: https://github.com/damageboy/analyze-spec-benchmarks/releases/download/data/scraped-2019-05-21.tar.xz
   You could probably rewrite the lxml part using one of Python's built-in modules; I didn't bother.
-* pycairo is optional if you want to generate the SVG files.
+* `pip3 install pycairo` - pycairo is optional if you want to generate the SVG files.
+* `pip3 install pillow` - PIL is optional if you want those PNG files to have high-quality anti-aliasing.
 * If you are going to republish any results, you need to abide by SPEC's fair use policy. http://www.spec.org/fairuse.html
 
 
 Collecting SPEC's data
 ----------------------
+Run `./do_it.sh` to run all scripts in succession. 
 
 These scripts work with the individual benchmarks in each SPEC result, and not the geometric average which SPEC lists in their CSV downloads. Currently, the only way to access these individual benchmark results is to scrape each result page from their website as text and/or HTML.
 
@@ -55,14 +59,14 @@ Run [`make-graphs.py`](make-graphs.py). It outputs the following:
   * int_graph.svg
   * fp_graph.svg
 
-Charts Generated on 2019-05-21
+Charts Generated on 2020-01-18
 ------------------------------
 
 ## Integer
 ![](int_graph.svg)
 
 ## Floating Point
-![](fp_graph.svg)
+![](fp_graph.png.svg)
 
 -----
 SPECint(R) and SPECfp(R) are registered trademarks of the Standard Performance Evaluation Corporation (SPEC).
