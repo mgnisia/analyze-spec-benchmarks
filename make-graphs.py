@@ -540,7 +540,7 @@ def RenderGraph(mode, resultsByBrand, outPath):
             cr.set_source_rgb(0, 0, 0)
             alignText(cr, legendFont, 0, brand, 6, listOrder * spacing + 3)
 
-    surface.write_to_png(outPath + ".svg")
+    surface.write_to_png(outPath + ".png")
 
 
 # ---------------------------------------------------------
