@@ -1,3 +1,5 @@
+# SPEC benchmarks
+
 A set of Python scripts to fetch benchmarks spec.org, analyze them, and output some text & PNG files.
 Original version by Jeff Preshing in February 2012.
 Released to the public domain.
@@ -8,8 +10,7 @@ For more information:
 http://preshing.com/20120208/a-look-back-at-single-threaded-cpu-performance
 
 
-Requirements
-------------
+## Requirements
 
 * Python 3 is required. Tested on Python 3.8.
 * `pip3 install future` - scripts have been pass through `futurize` and `pasteurize`, so they ought to work on python 2.7 too
@@ -17,7 +18,18 @@ Requirements
   You could probably rewrite the lxml part using one of Python's built-in modules; I didn't bother.
 * `pip3 install pycairo` - pycairo is optional if you want to generate the SVG files.
 * `pip3 install pillow` - PIL is optional if you want those PNG files to have high-quality anti-aliasing.
-* If you are going to republish any results, you need to abide by SPEC's fair use policy. http://www.spec.org/fairuse.html
+* If you are going to republish any results, you need to abide by SPEC's fair use policy. http://www.spec.org/fairuse.HTML
+
+## Virtual Environment
+
+You can run the scripts in a virtual environment provided by `pipenv`. If you are using macos, the setup of `pycairo` can cause a problems due to a missing `pkg-config`. The latter can be installed by `brew install pkg-config`.
+
+### Setup
+
+1. `pip3 install pipenv`
+2. `pipenv install`
+3. `pipenv shell`
+4. `bash do_it.sh`
 
 
 Collecting SPEC's data

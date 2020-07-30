@@ -1,18 +1,15 @@
 #!/bin/bash
-
-export MY_PYTHON=python3.8
-#export MY_PYTHON=/usr/local/opt/python@3.8/bin/python3.8
-
+export PYTHON_EXEC=`which python3`
 echo "Cleaning cached indexes"
 rm scraped/*.html
 
 echo "Caching Spec results"
-$MY_PYTHON ./fetch-pages.py | grep "Fetching"
+$PYTHON_EXEC ./fetch-pages.py | grep "Fetching"
 echo "Analyze pages"
-$MY_PYTHON ./analyze-pages.py
+$PYTHON_EXEC ./analyze-pages.py
 echo "Done analyzing"
-$MY_PYTHON ./check-autoparallel.py
+$PYTHON_EXEC ./check-autoparallel.py
 echo "Making graphs"
-$MY_PYTHON ./make-graphs.py
+$PYTHON_EXEC ./make-graphs.py
 
 open *.png
